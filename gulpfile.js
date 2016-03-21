@@ -1,5 +1,7 @@
 var gulp = require("gulp");
-var babel = require("gulp-babel");
+var browserify = require("browserify");
+var babelify = require("babelify");
+var source = require("vinyl-source-stream");
 var browserSync = require("browser-sync").create();
 
 var config = {
@@ -11,11 +13,12 @@ var config = {
 }
 
 gulp.task("js", function() {
-	return gulp.src(config.paths.mainJs)
-		.pipe(babel({
-			presets: ["es2015"]
-		}))
+    browserify({ entries: config.paths.mainJs, debug: true })
+        .transform("babelify", {presets: ["es2015"]})
+        .bundle()
+        .pipe(source("matrix.js"))
 		.pipe(gulp.dest(config.paths.dist + "/js"))
+        .on("error", console.error.bind(console))
 		.pipe(browserSync.stream());
 })
 
